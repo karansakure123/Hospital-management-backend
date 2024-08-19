@@ -3,6 +3,9 @@ import { config } from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import fileUpload from "express-fileupload";
+import multer from "multer";
+
+// Import routes and middleware
 import { dbConnection } from "./database/dbConnection.js";
 import messageRouter from "./router/messageRouter.js";
 import { errorMiddleware } from "./middlewares/errorMiddleware.js";
@@ -11,7 +14,6 @@ import appointmentRouter from "./router/appointmentRouter.js";
 import departmentRoutes from "./router/departmentRoutes.js";
 import accAndDirecRouter from "./router/about/accAndDirecRouter.js";
 import corpAndEqpRouter from "./router/about/corpAndEqpRouter.js";
-import multer from "multer";
 import navRouter from "./router/homepage/navRouter.js";
 import introRouter from "./router/homepage/introRouter.js";
 import whoWeRouter from "./router/homepage/whoWeRouter.js";
@@ -26,7 +28,9 @@ import heroRouter from "./router/homepage/heroRouter.js";
 import anaesthRouter from "./router/subdepartment/anaesthRouter.js";
 import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
- 
+
+// Initialize environment variables
+config(); // This assumes .env is at the root
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -42,14 +46,6 @@ const upload = multer({ storage: storage });
 
 const app = express();
 
-app.get("/", (req, res) => {
-  res.send("hi");
-});
-
-// Serve uploaded files
- 
-config({ path: "./config/config.env" });
-
 // Initialize database connection
 dbConnection();
 
@@ -58,7 +54,7 @@ const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error("Not allowed by CORS"));
@@ -101,13 +97,9 @@ app.use("/api/v1/footer", footerRouter);
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/hero", heroRouter);
 
-
-
-// subdepartmetn routes 
-
+// Subdepartment routes
 app.use("/api/v1/anaesthesio", anaesthRouter);
 app.use("/api/v1/cardiology", cardioRouter);
 app.use("/api/v1/orthopedics", orthoRouter);
-
 
 export default app;

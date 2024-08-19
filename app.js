@@ -52,23 +52,14 @@ const app = express();
 // Initialize database connection
 dbConnection();
 
-const allowedOrigins = ["http://localhost:5173", "http://localhost:5174"];
-
+ 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
+      origin: [process.env.FORNTEND_URL, process.env.DASHBOARD_URL],
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      credentials: true,
   })
 );
-
 app.use(cookieParser());
 app.use(express.json());
 

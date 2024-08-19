@@ -30,7 +30,10 @@ import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
 
 // Initialize environment variables
-config(); // This assumes .env is at the root
+config({ path: "./config/config.env" }); // Specify the path to your .env file
+
+// Debugging: Check if MONGO_URI is loaded
+console.log("MONGO_URI:", process.env.MONGO_URI);
 
 // Multer configuration
 const storage = multer.diskStorage({

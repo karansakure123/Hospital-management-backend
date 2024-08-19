@@ -1,25 +1,18 @@
-// connection.js
-import mongoose from 'mongoose';
-import { config } from 'dotenv';
+import mongoose from "mongoose";
 
-// Load environment variables from .env file
-config();
-
-// Function to connect to MongoDB
 export const dbConnection = () => {
-    const uri = process.env.MONGO_URI;
-
-    if (!uri) {
-        console.error("MongoDB connection string is missing in the environment variables.");
-        process.exit(1); // Exit the process if URI is not provided
+    const mongoURI = process.env.MONGO_URI;
+    
+    if (!mongoURI) {
+        console.error("MongoDB URI is missing. Please check your .env file.");
+        return;
     }
 
-    mongoose.connect(uri, { dbName: "hospitals", useNewUrlParser: true, useUnifiedTopology: true })
-        .then(() => {
-            console.log("MongoDB connected successfully");
-        })
-        .catch((error) => {
-            console.error("MongoDB connection error:", error);
-            process.exit(1); // Exit the process on connection error
-        });
+    mongoose.connect(mongoURI, {
+        dbName: "hospitals",
+    }).then(() => {
+        console.log("Connected to database");
+    }).catch(err => {
+        console.error("Error connecting to database:", err);
+    });
 };

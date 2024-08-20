@@ -29,22 +29,38 @@ import anaesthRouter from "./router/subdepartment/anaesthRouter.js";
 import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
 
-// Initialize environment variables
-config({ path: "./config/config.env" });
 
 const app = express();
+
+// Initialize environment variables
+config({ path: "./config/config.env" });
 
 // Initialize database connection
 dbConnection();
 
+
 // Configure CORS
+
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  process.env.DASHBOARD_URL
+];
+
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        // Allow requests with no origin (e.g., mobile apps or Postman)
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
+    credentials: true
   })
 );
+
 
 // Multer configuration
 const storage = multer.diskStorage({

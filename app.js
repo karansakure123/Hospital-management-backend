@@ -46,11 +46,11 @@ const allowedOrigins = [
   process.env.DASHBOARD_URL
 ];
 
+// Configure CORS
 app.use(
   cors({
     origin: function (origin, callback) {
-      console.log("Requested Origin:", origin); // Log the requested origin
-      if (!origin || allowedOrigins.includes(origin)) {
+       if (!origin || allowedOrigins.includes(origin)) {
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
@@ -58,8 +58,8 @@ app.use(
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
-    preflightContinue: false, // Ensure that this is set to false
-    optionsSuccessStatus: 204 // Use a status code for successful OPTIONS requests
+    preflightContinue: false,
+    optionsSuccessStatus: 204
   })
 );
 

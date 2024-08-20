@@ -51,16 +51,17 @@ const app = express();
 
 // Initialize database connection
 dbConnection();
+ 
 
-// Configure CORS
-// Configure CORS
+// Configure CORS with specific frontend URL
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    origin: 'https://renovahospital.netlify.app', // Replace with your actual frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
 );
+
 
 
 app.use(cookieParser());

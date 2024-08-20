@@ -45,8 +45,7 @@ const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.DASHBOARD_URL
 ];
-
-// Configure CORS
+ // Configure CORS
 app.use(
   cors({
     origin: function (origin, callback) {

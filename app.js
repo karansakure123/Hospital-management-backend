@@ -30,7 +30,14 @@ import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
 
 // Initialize environment variables
-config({ path: "./config/config.env" }); // Specify the path to your .env file
+config({ path: "./config/config.env" });
+
+const app = express();
+
+// Initialize database connection
+dbConnection();
+
+// Configure CORS
 app.use(
   cors({
     origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
@@ -38,8 +45,6 @@ app.use(
     credentials: true,
   })
 );
-// Debugging: Check if MONGO_URI is loaded
-console.log("MONGO_URI:", process.env.MONGO_URI);
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -52,16 +57,6 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-
-const app = express();
-
-// Initialize database connection
-dbConnection();
-
-// Configure CORS
-// Configure CORS
-
-
 
 app.use(cookieParser());
 app.use(express.json());
@@ -79,9 +74,6 @@ app.use("/api/v1/user", userRouter);
 app.use("/api/v1/appointment", appointmentRouter);
 app.use("/api/v1/departments", departmentRoutes);
 app.use("/api/v1/about", accAndDirecRouter, corpAndEqpRouter);
-app.use(errorMiddleware);
-
-// Homepage routes
 app.use("/api/v1/navbar", navRouter);
 app.use("/api/v1/intro", introRouter);
 app.use("/api/v1/infra", infraRouter);
@@ -93,10 +85,10 @@ app.use("/api/v1/blog", blogRouter);
 app.use("/api/v1/footer", footerRouter);
 app.use("/api/v1/health", healthRouter);
 app.use("/api/v1/hero", heroRouter);
-
-// Subdepartment routes
 app.use("/api/v1/anaesthesio", anaesthRouter);
 app.use("/api/v1/cardiology", cardioRouter);
 app.use("/api/v1/orthopedics", orthoRouter);
+
+app.use(errorMiddleware);
 
 export default app;

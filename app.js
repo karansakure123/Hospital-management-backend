@@ -52,14 +52,17 @@ const app = express();
 // Initialize database connection
 dbConnection();
 
- 
+// Configure CORS
+// Configure CORS
 app.use(
   cors({
-      origin: [process.env.FORNTEND_URL, process.env.DASHBOARD_URL],
-      methods: ["GET", "POST", "PUT", "DELETE"],
-      credentials: true,
+    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
   })
 );
+
+
 app.use(cookieParser());
 app.use(express.json());
 

@@ -31,7 +31,13 @@ import orthoRouter from "./router/subdepartment/orthoRouter.js";
 
 // Initialize environment variables
 config({ path: "./config/config.env" }); // Specify the path to your .env file
-
+app.use(
+  cors({
+    origin: [process.env.FRONTEND_URL, process.env.DASHBOARD_URL],
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    credentials: true,
+  })
+);
 // Debugging: Check if MONGO_URI is loaded
 console.log("MONGO_URI:", process.env.MONGO_URI);
 
@@ -51,16 +57,9 @@ const app = express();
 
 // Initialize database connection
 dbConnection();
- 
 
-// Configure CORS with specific frontend URL
-app.use(
-  cors({
-    origin: 'https://renovahospital.netlify.app', // Replace with your actual frontend URL
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-);
+// Configure CORS
+// Configure CORS
 
 
 

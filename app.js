@@ -49,16 +49,17 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
+      console.log("Requested Origin:", origin); // Log the requested origin
       if (!origin || allowedOrigins.includes(origin)) {
-        console.log("CORS Origin:", origin); // Debug: Log the origin
-        // Allow requests with no origin (e.g., mobile apps or Postman)
         callback(null, true);
       } else {
         callback(new Error('Not allowed by CORS'));
       }
     },
     methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true
+    credentials: true,
+    preflightContinue: false, // Ensure that this is set to false
+    optionsSuccessStatus: 204 // Use a status code for successful OPTIONS requests
   })
 );
 

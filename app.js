@@ -33,11 +33,9 @@ const app = express();
 // Initialize environment variables
 config({ path: "./config/config.env" });
 
-// Initialize database connection
-dbConnection();
+ dbConnection();
 
-// Configure CORS
-
+ 
  const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.DASHBOARD_URL

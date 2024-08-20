@@ -8,7 +8,6 @@ import multer from "multer";
 // Import routes and middleware
 import { dbConnection } from "./database/dbConnection.js";
 import messageRouter from "./router/messageRouter.js";
-import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 import userRouter from "./router/userRouter.js";
 import appointmentRouter from "./router/appointmentRouter.js";
 import departmentRoutes from "./router/departmentRoutes.js";
@@ -29,7 +28,6 @@ import anaesthRouter from "./router/subdepartment/anaesthRouter.js";
 import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
 
-
 const app = express();
 
 // Initialize environment variables
@@ -38,30 +36,31 @@ config({ path: "./config/config.env" });
 // Initialize database connection
 dbConnection();
 
-
 // Configure CORS
 
-const allowedOrigins = [
+ const allowedOrigins = [
   process.env.FRONTEND_URL,
   process.env.DASHBOARD_URL
 ];
- // Configure CORS
+
+// Configure CORS
 app.use(
   cors({
-    origin: function (origin, callback) {
-       if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true); // Allow request
       } else {
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error('Not allowed by CORS')); // Block request
       }
     },
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204
+    optionsSuccessStatus: 204  
   })
 );
 
+// Middleware and routes would follow
 
 // Multer configuration
 const storage = multer.diskStorage({

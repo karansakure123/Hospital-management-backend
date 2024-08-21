@@ -34,11 +34,11 @@ const app = express();
 // Initialize environment variables
 config({ path: "./config/config.env" });
 
- dbConnection();
+dbConnection();
 
- 
- const allowedOrigins = [
-  process.env.FRONTEND_URL,
+// Allowed origins for CORS
+const allowedOrigins = [
+  'https://renovaadmin.netlify.app',
   process.env.DASHBOARD_URL
 ];
 
@@ -55,11 +55,9 @@ app.use(
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true,
     preflightContinue: false,
-    optionsSuccessStatus: 204  
+    optionsSuccessStatus: 204
   })
 );
-
-// Middleware and routes would follow
 
 // Multer configuration
 const storage = multer.diskStorage({
@@ -104,6 +102,7 @@ app.use("/api/v1/anaesthesio", anaesthRouter);
 app.use("/api/v1/cardiology", cardioRouter);
 app.use("/api/v1/orthopedics", orthoRouter);
 
+// Error middleware
 app.use(errorMiddleware);
 
 export default app;

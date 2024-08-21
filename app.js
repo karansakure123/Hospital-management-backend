@@ -27,6 +27,7 @@ import heroRouter from "./router/homepage/heroRouter.js";
 import anaesthRouter from "./router/subdepartment/anaesthRouter.js";
 import cardioRouter from "./router/subdepartment/cardioRouter.js";
 import orthoRouter from "./router/subdepartment/orthoRouter.js";
+import { errorMiddleware } from "./middlewares/errorMiddleware.js";
 
 const app = express();
 

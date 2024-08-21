@@ -40,6 +40,9 @@ export const patientRegister = catchAssyncErrors(async (req, res, next) => {
   generateToken(user, "User Registered!", 200, res);
 });
 
+
+
+
 export const login = catchAssyncErrors(async (req, res, next) => {
   const { email, password, confirmPassword, role } = req.body;
 

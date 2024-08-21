@@ -72,6 +72,7 @@ export const login = catchAssyncErrors(async (req, res, next) => {
 
 
 
+
 export const addNewAdmin = catchAssyncErrors(async (req, res, next) => {
   const {
     firstName,
@@ -79,7 +80,7 @@ export const addNewAdmin = catchAssyncErrors(async (req, res, next) => {
     email,
     phone,
     password,
-    message,
+    message = "", // Default to empty string if not provided
     dob,
     nic,
     gender,
@@ -98,29 +99,36 @@ export const addNewAdmin = catchAssyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Please fill the full form", 400));
   }
 
-  const isRegistered = await User.findOne({ email });
+  try {
+    const isRegistered = await User.findOne({ email });
 
-  if (isRegistered) {
-    return next(new ErrorHandler(`${isRegistered.role} with this email is already registered`, 400));
+    if (isRegistered) {
+      return next(new ErrorHandler(`${isRegistered.role} with this email is already registered`, 400));
+    }
+
+    // Ensure password is hashed before storing
+    // const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = await User.create({
+      firstName,
+      lastName,
+      email,
+      phone,
+      password, // Use hashedPassword if hashing is done
+      message,
+      dob,
+      nic,
+      gender,
+      role: "Admin",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "New Admin Registered 😄",
+    });
+  } catch (error) {
+    return next(new ErrorHandler("An error occurred while registering the new admin", 500));
   }
-
-  const newAdmin = await User.create({
-    firstName,
-    lastName,
-    email,
-    phone,
-    password,
-    message,
-    dob,
-    nic,
-    gender,
-    role: "Admin",
-  });
-
-  res.status(200).json({
-    success: true,
-    message: "New Admin Registered 😄",
-  });
 });
 
 export const getDoctors = catchAssyncErrors(async (req, res, next) => {

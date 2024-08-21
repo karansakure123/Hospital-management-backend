@@ -39,8 +39,10 @@ dbConnection();
 // Allowed origins for CORS
 const allowedOrigins = [
   'https://renovaadmin.netlify.app',
+  'https://renovahospital.netlify.app',
   process.env.DASHBOARD_URL
 ];
+
 
 // Configure CORS
 app.use(

@@ -57,10 +57,10 @@ const userSchema = new mongoose.Schema({
     required: true,
     select: false,
   },
-
   role: {
     type: String,
-    default: 'Admin',  
+    enum: ['Admin', 'Patient'], // Add any other roles you need
+    required: true
   },
   
   doctorDepartment: {

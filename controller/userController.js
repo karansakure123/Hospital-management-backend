@@ -42,123 +42,95 @@ export const patientRegister = catchAssyncErrors(async (req, res, next) => {
 
 
 
- asdasdasda
+// Admin Login Function
+export const login = catchAssyncErrors(async (req, res, next) => {
+  const { email, password, confirmPassword, role } = req.body;
 
-export const adminRegister = catchAssyncErrors(async (req, res, next) => {
-  const { firstName, lastName, email, phone, nic, dob, gender, password, confirmPassword, role } = req.body;
-
-  // Validate required fields
-  if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !confirmPassword || !role) {
-    return next(new ErrorHandler("Please fill in all fields!", 400));
-  }
-
-  // Validate role
-  const validRoles = ["Admin", "Patient"]; // Add any other valid roles if needed
-  if (!validRoles.includes(role)) {
-    return next(new ErrorHandler("Invalid role provided!", 400));
-  }
-
-  // Check if the user already exists
-  const isRegistered = await User.findOne({ email });
-  if (isRegistered) {
-    return next(new ErrorHandler("User already registered!", 400));
+  // Check if all required fields are provided
+  if (!email || !password || !confirmPassword || !role) {
+    return next(new ErrorHandler("Please provide all details", 400));
   }
 
   // Check if password and confirmPassword match
   if (password !== confirmPassword) {
-    return next(new ErrorHandler("Passwords do not match!", 400));
+    return next(new ErrorHandler("Password and confirm password do not match", 400));
   }
 
-  // Create a new user
-  const user = await User.create({
+  // Find user by email and include password field
+  const user = await User.findOne({ email }).select("+password");
+  if (!user) {
+    return next(new ErrorHandler("Invalid email or password", 400));
+  }
+
+  // Check if the provided password matches the stored password
+  const isPasswordMatch = await user.comparePassword(password);
+  if (!isPasswordMatch) {
+    return next(new ErrorHandler("Invalid email or password", 400));
+  }
+ 
+  // Generate token and send response
+  generateToken(user, "User logged in successfully", 200, res);
+});
+
+
+
+export const addNewAdmin = catchAssyncErrors(async (req, res, next) => {
+  const {
     firstName,
     lastName,
     email,
     phone,
-    nic,
-    dob,
-    gender,
     password,
-    role
-  });
+    message = "", // Default to empty string if not provided
+    dob,
+    nic,
+    gender,
+  } = req.body;
 
-  // Generate token and respond
-  const token = user.generateWebToken();
-  res.status(201).json({
-    success: true,
-    message: "User registered successfully!",
-    user,
-    token
-  });
-});
-
-
-export const login = catchAssyncErrors(async (req, res, next) => {
-  const { email, password, confirmPassword, role } = req.body;
-  if (!email || !password || !confirmPassword || !role) {
-    return next(new ErrorHandler("Please Fill Full Form!", 400));
-  }
-  if (password !== confirmPassword) {
-    return next(
-      new ErrorHandler("Password & Confirm Password Do Not Match!", 400)
-    );
-  }
-  const user = await User.findOne({ email }).select("+password");
-  if (!user) {
-    return next(new ErrorHandler("Invalid Email Or Password!", 400));
-  }
-
-  const isPasswordMatch = await user.comparePassword(password);
-  if (!isPasswordMatch) {
-    return next(new ErrorHandler("Invalid Email Or Password!", 400));
-  }
-  if (role !== user.role) {
-    return next(new ErrorHandler(`User Not Found With This Role!`, 400));
-  }
-  generateToken(user, "Login Successfully!", 201, res);
-});
-
-export const addNewAdmin = catchAssyncErrors(async (req, res, next) => {
-  const { firstName, lastName, email, phone, nic, dob, gender, password } =
-    req.body;
   if (
     !firstName ||
     !lastName ||
     !email ||
     !phone ||
-    !nic ||
-    !dob ||
+    !password ||
     !gender ||
-    !password
+    !dob ||
+    !nic
   ) {
-    return next(new ErrorHandler("Please Fill Full Form!", 400));
+    return next(new ErrorHandler("Please fill the full form", 400));
   }
 
-  const isRegistered = await User.findOne({ email });
-  if (isRegistered) {
-    return next(new ErrorHandler("Admin With This Email Already Exists!", 400));
-  }
+  try {
+    const isRegistered = await User.findOne({ email });
 
-  const admin = await User.create({
-    firstName,
-    lastName,
-    email,
-    phone,
-    nic,
-    dob,
-    gender,
-    password,
-    role: "Admin",
-  });
-  res.status(200).json({
-    success: true,
-    message: "New Admin Registered",
-    admin,
-  });
+    if (isRegistered) {
+      return next(new ErrorHandler(`${isRegistered.role} with this email is already registered`, 400));
+    }
+
+    // Ensure password is hashed before storing
+    // const hashedPassword = await bcrypt.hash(password, 10);
+
+    const newAdmin = await User.create({
+      firstName,
+      lastName,
+      email,
+      phone,
+      password, // Use hashedPassword if hashing is done
+      message,
+      dob,
+      nic,
+      gender,
+      role: "Admin",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "New Admin Registered 😄",
+    });
+  } catch (error) {
+    return next(new ErrorHandler("An error occurred while registering the new admin", 500));
+  }
 });
-
-
-
 
 export const getDoctors = catchAssyncErrors(async (req, res, next) => {
   // Check if the department query parameter is provided
@@ -177,24 +149,14 @@ export const getDoctors = catchAssyncErrors(async (req, res, next) => {
   });
 });
 
-export const getUsers = catchAssyncErrors(async (req, res, next) => { // Fixed typo in 'catchAsyncErrors'
+export const getUsers = catchAssyncErrors(async (req, res, next) => {
   const user = req.user;
-
-  if (!user) {
-    return res.status(404).json({
-      success: false,
-      message: "User not found",
-    });
-  }
-
   console.log("Retrieved user:", user);
-
   res.status(200).json({
-    success: true,
-    user,
+      success: true,
+      user,
   });
 });
-
 
 
 export const logoutAdmin =(async(req,res,next)=>{

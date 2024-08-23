@@ -3,22 +3,30 @@ import {catchAssyncErrors} from "./catchAssyncErrors.js";
 import ErrorHandler from "../middlewares/errorMiddleware.js";
 import jwt from "jsonwebtoken";
 // Function to generate a token
- export const isAdminAuthenticate = catchAssyncErrors(async (req, res, next) => {
-  const token = req.cookies.adminToken;
+
+ 
+export const isAdminAuthenticate = async (req, res, next) => {
+  const token = req.headers.authorization?.split(' ')[1]; // Assumes Bearer token
+
   if (!token) {
-      return next(new ErrorHandler("Admin Not Authenticated!", 400));
+    return res.status(401).json({ success: false, message: 'No token provided' });
   }
 
-  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-  req.user = await User.findById(decoded.id);
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    const user = await User.findById(decoded.id);
 
-  if (!req.user || req.user.role !== "Admin") {
-      return next(new ErrorHandler("Admin not authorized for resources!", 400));
+    if (!user || user.role !== 'Admin') {
+      return res.status(403).json({ success: false, message: 'Access denied' });
+    }
+
+    req.user = user; // Attach user to request object
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, message: 'Invalid token' });
   }
-  
-  next();
-});
-
+};
+ 
 export const isPatientAuthenticate = catchAssyncErrors(
   async (req, res, next) => {
     const token = req.cookies.patientToken;

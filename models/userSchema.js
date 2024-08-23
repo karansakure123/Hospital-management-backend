@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
 
   role: {
     type: String,
-    default: 'Patient',  
+    default: 'Admin',  
   },
   
   doctorDepartment: {

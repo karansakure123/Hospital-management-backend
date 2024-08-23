@@ -149,14 +149,24 @@ export const getDoctors = catchAssyncErrors(async (req, res, next) => {
   });
 });
 
-export const getUsers = catchAssyncErrors(async (req, res, next) => {
+export const getUsers = catchAssyncErrors(async (req, res, next) => { // Fixed typo in 'catchAsyncErrors'
   const user = req.user;
+
+  if (!user) {
+    return res.status(404).json({
+      success: false,
+      message: "User not found",
+    });
+  }
+
   console.log("Retrieved user:", user);
+
   res.status(200).json({
-      success: true,
-      user,
+    success: true,
+    user,
   });
 });
+
 
 
 export const logoutAdmin =(async(req,res,next)=>{

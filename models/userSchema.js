@@ -1,7 +1,6 @@
-import mongoose from "mongoose";
-import validator from "validator";
-import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import mongoose from 'mongoose';
+import validator from 'validator';
+import bcrypt from 'bcrypt';
 
 const userSchema = new mongoose.Schema({
   firstName: {
@@ -59,16 +58,20 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['Admin', 'Patient'], // Add any other roles you need
+    enum: ['Admin', 'Patient', 'Doctor'], // Include any other roles you need
     required: true
   },
-  
   doctorDepartment: {
-    type: String
+    type: String,
+    required: function() {
+      return this.role === 'Doctor'; // Required only if the role is 'Doctor'
+    }
   },
-  speciality:{
-    type:String,
-    required:false
+  specialty: {
+    type: String,
+    required: function() {
+      return this.role === 'Doctor'; // Required only if the role is 'Doctor'
+    }
   },
   docAvatar: {
     public_id: String,
@@ -76,24 +79,22 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
+// Pre-save hook to hash the password before saving the user
+userSchema.pre('save', async function (next) {
+  if (!this.isModified('password')) {
     return next();
   }
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
+// Method to compare passwords
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-userSchema.methods.generateWebToken = function () {
-  return jwt.sign(
-    { id: this._id },
-    process.env.JWT_SECRET_KEY,
-    { expiresIn: process.env.JWT_EXPIRES }
-  );
-};
-
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model('User', userSchema);

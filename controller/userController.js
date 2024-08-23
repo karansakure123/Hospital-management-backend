@@ -67,12 +67,7 @@ export const login = catchAssyncErrors(async (req, res, next) => {
   if (!isPasswordMatch) {
     return next(new ErrorHandler("Invalid email or password", 400));
   }
-
-  // Check if the user has the correct role
-  if (user.role !== role) {
-    return next(new ErrorHandler("Unauthorized role", 403));
-  }
-
+ 
   // Generate token and send response
   generateToken(user, "User logged in successfully", 200, res);
 });

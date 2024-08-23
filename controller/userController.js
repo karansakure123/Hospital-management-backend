@@ -40,6 +40,59 @@ export const patientRegister = catchAssyncErrors(async (req, res, next) => {
   generateToken(user, "User Registered!", 200, res);
 });
 
+
+
+ asdasdasda
+
+export const adminRegister = catchAssyncErrors(async (req, res, next) => {
+  const { firstName, lastName, email, phone, nic, dob, gender, password, confirmPassword, role } = req.body;
+
+  // Validate required fields
+  if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !confirmPassword || !role) {
+    return next(new ErrorHandler("Please fill in all fields!", 400));
+  }
+
+  // Validate role
+  const validRoles = ["Admin", "Patient"]; // Add any other valid roles if needed
+  if (!validRoles.includes(role)) {
+    return next(new ErrorHandler("Invalid role provided!", 400));
+  }
+
+  // Check if the user already exists
+  const isRegistered = await User.findOne({ email });
+  if (isRegistered) {
+    return next(new ErrorHandler("User already registered!", 400));
+  }
+
+  // Check if password and confirmPassword match
+  if (password !== confirmPassword) {
+    return next(new ErrorHandler("Passwords do not match!", 400));
+  }
+
+  // Create a new user
+  const user = await User.create({
+    firstName,
+    lastName,
+    email,
+    phone,
+    nic,
+    dob,
+    gender,
+    password,
+    role
+  });
+
+  // Generate token and respond
+  const token = user.generateWebToken();
+  res.status(201).json({
+    success: true,
+    message: "User registered successfully!",
+    user,
+    token
+  });
+});
+
+
 export const login = catchAssyncErrors(async (req, res, next) => {
   const { email, password, confirmPassword, role } = req.body;
   if (!email || !password || !confirmPassword || !role) {

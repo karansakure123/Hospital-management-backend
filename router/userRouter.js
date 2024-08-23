@@ -10,6 +10,7 @@ import {
     logoutAdmin,
     logoutPatient,
     patientRegister,
+    adminRegister,
  } from "../controller/userController.js";
 import { isAdminAuthenticate, isPatientAuthenticate } from "../middlewares/auth.js";
 
@@ -17,7 +18,7 @@ const userRouter = express.Router();
 
 userRouter.post("/patient/register", patientRegister);
  
-
+userRouter.post("/admin/register",  adminRegister);
 userRouter.post("/login", login);
 userRouter.post("/admin/addnew", isAdminAuthenticate, addNewAdmin);
 userRouter.get("/doctors", getDoctors);

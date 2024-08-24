@@ -204,9 +204,15 @@ export const logoutPatient =(async(req,res,next)=>{
       } = req.body;
   
       // Check for required fields
-     
+      if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !specialty || !docAvatar) {
+        return res.status(400).json({ success: false, message: "Please Fill Full Form!" });
+      }
+  
       // Check if doctor is already registered
-      
+      const isRegistered = await User.findOne({ email });
+      if (isRegistered) {
+        return res.status(400).json({ success: false, message: "Doctor With This Email Already Exists!" });
+      }
   
       // Create new doctor in the database
       const doctor = await User.create({
@@ -235,7 +241,6 @@ export const logoutPatient =(async(req,res,next)=>{
       res.status(500).json({ success: false, message: "Internal Server Error" });
     }
   };
-
 
 export const updateDoctor = catchAssyncErrors(async (req, res, next) => {
   const doctorId = req.params.id; // Get doctor ID from the request parameters

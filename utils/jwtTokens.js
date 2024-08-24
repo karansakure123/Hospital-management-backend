@@ -1,21 +1,15 @@
 import jwt from 'jsonwebtoken';
 
-export const generateToken = (user, message, statusCode, res) => {
-  // Ensure the user is an instance of the User model with `generateWebToken` method
-  if (typeof user.generateWebToken !== 'function') {
-    throw new Error('User object does not have generateWebToken method');
-  }
+// Function to generate a JWT token
+export const generateToken = (user) => {
+  return jwt.sign(
+    { id: user._id, role: user.role }, // Payload
+    process.env.JWT_SECRET, // Secret key
+    { expiresIn: process.env.JWT_EXPIRES_IN || '1h' } // Expiry time
+  );
+};
 
-  const token = user.generateWebToken();
-  const cookieName = user.role === 'Admin' ? 'adminToken' : 'patientToken';
-
-  res.status(statusCode).cookie(cookieName, token, {
-    expires: new Date(Date.now() + process.env.COOKIE_EXPIRES * 24 * 60 * 60 * 1000),
-    httpOnly: true,
-  }).json({
-    success: true,
-    message,
-    user,
-    token,
-  });
+// Function to verify a JWT token
+export const verifyToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET);
 };

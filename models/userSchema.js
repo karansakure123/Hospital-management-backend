@@ -76,7 +76,8 @@ const userSchema = new mongoose.Schema({
   docAvatar: {
     public_id: String,
     url: String,
-  },
+   }
+  ,
 });
 
 // Pre-save hook to hash the password before saving the user

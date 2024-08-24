@@ -194,17 +194,6 @@ export const logoutPatient =(async(req,res,next)=>{
 
   export const addNewDoctor = async (req, res) => {
     try {
-        // Check for file upload
-        if (!req.files || !req.files.docAvatar) {
-            return res.status(400).json({ success: false, message: "Doctor Avatar Required!" });
-        }
-        
-        const { docAvatar } = req.files;
-        const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
-        if (!allowedFormats.includes(docAvatar.mimetype)) {
-            return res.status(400).json({ success: false, message: "File Format Not Supported!" });
-        }
-
         // Destructure the fields from the request body
         const {
             firstName,
@@ -217,10 +206,11 @@ export const logoutPatient =(async(req,res,next)=>{
             password,
             doctorDepartment,
             specialty,
+            docAvatar // Now expecting this as a URL
         } = req.body;
 
         // Check for required fields
-        if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment) {
+        if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !docAvatar) {
             return res.status(400).json({ success: false, message: "Please Fill Full Form!" });
         }
 
@@ -228,13 +218,6 @@ export const logoutPatient =(async(req,res,next)=>{
         const isRegistered = await User.findOne({ email });
         if (isRegistered) {
             return res.status(400).json({ success: false, message: "Doctor With This Email Already Exists!" });
-        }
-
-        // Upload doctor avatar to Cloudinary
-        const cloudinaryResponse = await cloudinary.uploader.upload(docAvatar.tempFilePath);
-        if (!cloudinaryResponse || cloudinaryResponse.error) {
-            console.error("Cloudinary Error:", cloudinaryResponse.error || "Unknown Cloudinary error");
-            return res.status(500).json({ success: false, message: "Failed To Upload Doctor Avatar To Cloudinary" });
         }
 
         // Create new doctor in the database
@@ -251,8 +234,8 @@ export const logoutPatient =(async(req,res,next)=>{
             role: "Doctor",
             doctorDepartment,
             docAvatar: {
-                public_id: cloudinaryResponse.public_id,
-                url: cloudinaryResponse.secure_url,
+                public_id: null, // No need for Cloudinary public_id since we are using a direct URL
+                url: docAvatar,  // Directly using the provided URL
             },
         });
 
@@ -269,58 +252,35 @@ export const logoutPatient =(async(req,res,next)=>{
 };
 
 
-
-
-
- 
-
-
 export const updateDoctor = catchAssyncErrors(async (req, res, next) => {
-    const doctorId = req.params.id; // Get doctor ID from the request parameters
-    const updates = req.body; // Get updated details from the request body
+  const doctorId = req.params.id; // Get doctor ID from the request parameters
+  const updates = req.body; // Get updated details from the request body
 
-    // Check if the doctor exists
-    const doctor = await User.findById(doctorId);
-    if (!doctor) {
-        return next(new ErrorHandler("Doctor not found", 404));
-    }
+  // Check if the doctor exists
+  const doctor = await User.findById(doctorId);
+  if (!doctor) {
+      return next(new ErrorHandler("Doctor not found", 404));
+  }
 
-    // If an avatar is provided, handle the file upload and update the avatar
-    if (req.files && req.files.docAvatar) {
-        let { docAvatar } = req.files;
-        const allowedFormats = ["image/png", "image/jpeg", "image/webp"];
-        if (!allowedFormats.includes(docAvatar.mimetype)) {
-            return next(new ErrorHandler("File Format Not Supported!", 400));
-        }
+  // If an image URL is provided, update the avatar
+  if (updates.docAvatarUrl) {
+      updates.docAvatar = {
+          url: updates.docAvatarUrl,
+      };
+  }
 
-        // Upload the new avatar to Cloudinary
-        const cloudinaryResponse = await cloudinary.uploader.upload(docAvatar.tempFilePath);
-        if (!cloudinaryResponse || cloudinaryResponse.error) {
-            return next(new ErrorHandler("Failed To Upload Doctor Avatar To Cloudinary", 500));
-        }
+  // Update the doctor with the new details
+  const updatedDoctor = await User.findByIdAndUpdate(doctorId, updates, {
+      new: true,
+      runValidators: true,
+  });
 
-        // Update the avatar information
-        updates.docAvatar = {
-            public_id: cloudinaryResponse.public_id,
-            url: cloudinaryResponse.secure_url,
-        };
-    }
-
-    // Update the doctor with the new details
-    const updatedDoctor = await User.findByIdAndUpdate(doctorId, updates, {
-        new: true,
-        runValidators: true,
-    });
-
-    res.status(200).json({
-        success: true,
-        message: "Doctor updated successfully",
-        doctor: updatedDoctor,
-    });
+  res.status(200).json({
+      success: true,
+      message: "Doctor updated successfully",
+      doctor: updatedDoctor,
+  });
 });
-
-
-
 
 
 

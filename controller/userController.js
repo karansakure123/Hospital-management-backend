@@ -43,36 +43,34 @@ export const patientRegister = catchAssyncErrors(async (req, res, next) => {
 
 
 // Admin Login Function
-
-
 export const login = catchAssyncErrors(async (req, res, next) => {
   const { email, password, confirmPassword, role } = req.body;
 
+  // Check if all required fields are provided
   if (!email || !password || !confirmPassword || !role) {
-    return next(new ErrorHandler('Please provide all details', 400));
+    return next(new ErrorHandler("Please provide all details", 400));
   }
 
+  // Check if password and confirmPassword match
   if (password !== confirmPassword) {
-    return next(new ErrorHandler('Password and confirm password do not match', 400));
+    return next(new ErrorHandler("Password and confirm password do not match", 400));
   }
 
-  const user = await User.findOne({ email }).select('+password');
+  // Find user by email and include password field
+  const user = await User.findOne({ email }).select("+password");
   if (!user) {
-    return next(new ErrorHandler('Invalid email or password', 400));
+    return next(new ErrorHandler("Invalid email or password", 400));
   }
 
+  // Check if the provided password matches the stored password
   const isPasswordMatch = await user.comparePassword(password);
   if (!isPasswordMatch) {
-    return next(new ErrorHandler('Invalid email or password', 400));
+    return next(new ErrorHandler("Invalid email or password", 400));
   }
-
-  res.status(200).json({
-    success: true,
-    message: 'User logged in successfully',
-    user, // Returning the user object without generating a token
-  });
-});
  
+  // Generate token and send response
+  generateToken(user, "User logged in successfully", 200, res);
+});
 
 
 

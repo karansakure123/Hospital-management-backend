@@ -186,60 +186,48 @@ export const logoutPatient =(async(req,res,next)=>{
    
  
 
-  export const addNewDoctor = async (req, res) => {
-    try {
-      const {
-        firstName,
-        lastName,
-        email,
-        phone,
-        nic,
-        dob,
-        gender,
-        password,
-        doctorDepartment,
-        specialty,
-        docAvatar
-      } = req.body;
-  
-      // Check for required fields
-      if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !specialty ) {
-        return res.status(400).json({ success: false, message: "Please Fill Full Form!" });
-      }
-  
-      // Check if doctor is already registered
-      const isRegistered = await User.findOne({ email });
-      if (isRegistered) {
-        return res.status(400).json({ success: false, message: "Doctor With This Email Already Exists!" });
-      }
-  
-      // Create new doctor in the database
-      const doctor = await User.create({
-        firstName,
-        lastName,
-        email,
-        phone,
-        nic,
-        dob,
-        gender,
-        password,
-        specialty,
-        role: "Doctor",
-        doctorDepartment,
-        docAvatar
-      });
-  
-      // Send success response
-      res.status(200).json({
-        success: true,
-        message: "New Doctor Registered",
-        doctor
-      });
-    } catch (error) {
-      console.error("Error in addNewDoctor:", error.message); // Log the error message for debugging
-      res.status(500).json({ success: false, message: "Internal Server Error" });
-    }
-  };
+
+
+// Controller to handle adding a new doctor
+export const addNewDoctor = async (req, res) => {
+  const { firstName, lastName, email, phone, nic, gender, dob, password, doctorDepartment, specialty, role } = req.body;
+
+  // Validate role before proceeding
+  if (role !== 'Doctor') {
+    return res.status(400).json({ message: 'Role must be Doctor for this operation' });
+  }
+
+  try {
+    // Create a new doctor object
+    const newDoctor = new User({
+      firstName,
+      lastName,
+      email,
+      phone,
+      nic,
+      gender,
+      dob,
+      password,
+      role,
+      doctorDepartment,
+      specialty,
+      docAvatar: '' // Assuming avatar URL is not required initially
+    });
+
+    // Save the new doctor to the database
+    await newDoctor.save();
+
+    // Return a success response
+    res.status(201).json({ message: 'Doctor added successfully!', doctor: newDoctor });
+
+  } catch (error) {
+    // Handle any errors (e.g., duplicate email, validation errors)
+    res.status(500).json({ message: error.message || 'An error occurred while adding the doctor.' });
+  }
+};
+
+
+
 
 export const updateDoctor = catchAssyncErrors(async (req, res, next) => {
   const doctorId = req.params.id; // Get doctor ID from the request parameters

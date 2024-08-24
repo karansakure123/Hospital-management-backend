@@ -184,13 +184,7 @@ export const logoutPatient =(async(req,res,next)=>{
   })
   })
    
-
-
-  
-
-
-
-
+ 
 
   export const addNewDoctor = async (req, res) => {
     try {

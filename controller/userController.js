@@ -190,7 +190,7 @@ export const logoutPatient =(async(req,res,next)=>{
 
 // Controller to handle adding a new doctor
 export const addNewDoctor = async (req, res) => {
-  const { firstName, lastName, email, phone, nic, gender, dob, password, doctorDepartment, specialty, role } = req.body;
+  const { firstName, lastName, email, phone, nic, gender, dob, password, doctorDepartment, specialty, role,docAvatar } = req.body;
 
   // Validate role before proceeding
   if (role !== 'Doctor') {
@@ -211,7 +211,7 @@ export const addNewDoctor = async (req, res) => {
       role,
       doctorDepartment,
       specialty,
-      docAvatar: '' // Assuming avatar URL is not required initially
+      docAvatar 
     });
 
     // Save the new doctor to the database
@@ -233,13 +233,13 @@ export const addNewDoctor = async (req, res) => {
 // Controller to update an existing doctor's details
 export const updateDoctor = async (req, res) => {
   const { id } = req.params;
-  const { firstName, lastName, email, phone, nic, gender, dob, doctorDepartment, specialty } = req.body;
+  const { firstName, lastName, email, phone, nic, gender, dob, doctorDepartment, specialty,docAvatar } = req.body;
 
   try {
     // Find the doctor by ID and update their details
     const updatedDoctor = await User.findByIdAndUpdate(
       id,
-      { firstName, lastName, email, phone, nic, gender, dob, doctorDepartment, specialty },
+      { firstName, lastName, email, phone, nic, gender, dob,docAvatar, doctorDepartment, specialty },
       { new: true, runValidators: true }
     );
 

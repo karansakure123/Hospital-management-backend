@@ -229,35 +229,33 @@ export const addNewDoctor = async (req, res) => {
 
 
 
-export const updateDoctor = catchAssyncErrors(async (req, res, next) => {
-  const doctorId = req.params.id; // Get doctor ID from the request parameters
-  const updates = req.body; // Get updated details from the request body
 
-  // Check if the doctor exists
-  const doctor = await User.findById(doctorId);
-  if (!doctor) {
-      return next(new ErrorHandler("Doctor not found", 404));
+// Controller to update an existing doctor's details
+export const updateDoctor = async (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName, email, phone, nic, gender, dob, doctorDepartment, specialty } = req.body;
+
+  try {
+    // Find the doctor by ID and update their details
+    const updatedDoctor = await User.findByIdAndUpdate(
+      id,
+      { firstName, lastName, email, phone, nic, gender, dob, doctorDepartment, specialty },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedDoctor) {
+      return res.status(404).json({ message: 'Doctor not found' });
+    }
+
+    // Return a success response
+    res.status(200).json({ message: 'Doctor updated successfully!', doctor: updatedDoctor });
+
+  } catch (error) {
+    // Handle any errors (e.g., validation errors, database errors)
+    res.status(500).json({ message: error.message || 'An error occurred while updating the doctor.' });
   }
+};
 
-  // If an image URL is provided, update the avatar
-  if (updates.docAvatarUrl) {
-      updates.docAvatar = {
-          url: updates.docAvatarUrl,
-      };
-  }
-
-  // Update the doctor with the new details
-  const updatedDoctor = await User.findByIdAndUpdate(doctorId, updates, {
-      new: true,
-      runValidators: true,
-  });
-
-  res.status(200).json({
-      success: true,
-      message: "Doctor updated successfully",
-      doctor: updatedDoctor,
-  });
-});
 
 
 

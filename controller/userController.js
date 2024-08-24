@@ -203,7 +203,7 @@ export const logoutPatient =(async(req,res,next)=>{
       } = req.body;
   
       // Check for required fields
-      if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !specialty || !docAvatar) {
+      if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !specialty ) {
         return res.status(400).json({ success: false, message: "Please Fill Full Form!" });
       }
   

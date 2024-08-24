@@ -188,7 +188,6 @@ export const logoutPatient =(async(req,res,next)=>{
 
   export const addNewDoctor = async (req, res) => {
     try {
-      // Destructure the fields from the request body
       const {
         firstName,
         lastName,
@@ -200,7 +199,7 @@ export const logoutPatient =(async(req,res,next)=>{
         password,
         doctorDepartment,
         specialty,
-        docAvatar // Now expecting this as a URL
+        docAvatar
       } = req.body;
   
       // Check for required fields
@@ -227,17 +226,17 @@ export const logoutPatient =(async(req,res,next)=>{
         specialty,
         role: "Doctor",
         doctorDepartment,
-        docAvatar,
+        docAvatar
       });
   
       // Send success response
       res.status(200).json({
         success: true,
         message: "New Doctor Registered",
-        doctor,
+        doctor
       });
     } catch (error) {
-      console.error("Error in addNewDoctor:", error);
+      console.error("Error in addNewDoctor:", error.message); // Log the error message for debugging
       res.status(500).json({ success: false, message: "Internal Server Error" });
     }
   };

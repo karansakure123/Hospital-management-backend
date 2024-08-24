@@ -5,26 +5,27 @@ import bcrypt from 'bcrypt';
 const userSchema = new mongoose.Schema({
   firstName: {
     type: String,
-    required: true,
+    required: [true, 'First Name is required'],
     minlength: [3, "First Name must contain at least 3 characters"],
   },
   lastName: {
     type: String,
-    required: true,
+    required: [true, 'Last Name is required'],
     minlength: [3, "Last Name must contain at least 3 characters"],
   },
   email: {
     type: String,
-    required: true,
+    required: [true, 'Email is required'],
     validate: {
       validator: validator.isEmail,
       message: "Please provide a valid email",
     },
+    unique: true, // Ensure email is unique
   },
   phone: {
     type: String,
-    required: true,
-    minlength: [10, "Phone numbers must be 10 digits"],
+    required: [true, 'Phone number is required'],
+    minlength: [10, "Phone number must be at least 10 digits"],
     validate: {
       validator: function (v) {
         return /\d{10}/.test(v);
@@ -32,34 +33,29 @@ const userSchema = new mongoose.Schema({
       message: props => `${props.value} is not a valid phone number!`
     }
   },
-  message: {
-    type: String,
-    minlength: [10, "Message must be at least 10 characters"],
-    maxlength: [10, "Message must be at most 10 characters"],
-  },
   nic: {
     type: String,
-    required: [true, 'Please provide NIC'],
+    required: [true, 'NIC is required'],
   },
   gender: {
     type: String,
-    required: true,
+    required: [true, 'Gender is required'],
     enum: ['male', 'female', 'other'], 
   },
   dob: {
     type: Date,
-    required: [true, "DOB is required"],
+    required: [true, 'Date of Birth is required'],
   },
   password: {
     type: String,
-    minLength: [6, "Password must be at least 6 characters!"],
-    required: true,
-    select: false,
+    required: [true, 'Password is required'],
+    minlength: [6, "Password must be at least 6 characters!"],
+    select: false, // Hide password by default
   },
   role: {
     type: String,
-    enum: ['Admin', 'Patient', 'Doctor'], // Include any other roles you need
-    required: true
+    enum: ['Admin', 'Patient', 'Doctor'], // Include other roles if necessary
+    required: [true, 'Role is required'],
   },
   doctorDepartment: {
     type: String,
@@ -74,12 +70,11 @@ const userSchema = new mongoose.Schema({
     }
   },
   docAvatar: {
-    public_id: String,
-    url: String,
-   }
-  ,
+    type: String, // Changed to String to store URL directly
+  }
 });
 
+ 
 // Pre-save hook to hash the password before saving the user
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {

@@ -191,8 +191,10 @@ export const logoutPatient =(async(req,res,next)=>{
 
 
 
+
   export const addNewDoctor = async (req, res) => {
     try {
+        // Destructure the fields from the request body
         const {
             firstName,
             lastName,
@@ -204,18 +206,21 @@ export const logoutPatient =(async(req,res,next)=>{
             password,
             doctorDepartment,
             specialty,
-            docAvatar 
+            docAvatar // Now expecting this as a URL
         } = req.body;
 
+        // Check for required fields
         if (!firstName || !lastName || !email || !phone || !nic || !dob || !gender || !password || !doctorDepartment || !docAvatar) {
             return res.status(400).json({ success: false, message: "Please Fill Full Form!" });
         }
 
+        // Check if doctor is already registered
         const isRegistered = await User.findOne({ email });
         if (isRegistered) {
             return res.status(400).json({ success: false, message: "Doctor With This Email Already Exists!" });
         }
 
+        // Create new doctor in the database
         const doctor = await User.create({
             firstName,
             lastName,
@@ -229,18 +234,19 @@ export const logoutPatient =(async(req,res,next)=>{
             role: "Doctor",
             doctorDepartment,
             docAvatar: {
-                public_id: null, 
-                url: docAvatar,
+                public_id: null, // No need for Cloudinary public_id since we are using a direct URL
+                url: docAvatar,  // Directly using the provided URL
             },
         });
 
+        // Send success response
         res.status(200).json({
             success: true,
             message: "New Doctor Registered",
             doctor,
         });
     } catch (error) {
-        console.error("Error in addNewDoctor:", error.stack || error.message || error);
+        console.error("Error in addNewDoctor:", error);
         res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 };
